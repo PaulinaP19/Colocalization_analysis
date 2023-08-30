@@ -82,16 +82,17 @@ macro "Batch Coloc"
 			
 			run("Coloc 2", "channel_1=deconvRed channel_2=deconvAF647 roi_or_mask=DAPI-mask threshold_regression=Bisection display_shuffled_images li_histogram_channel_1 li_histogram_channel_2 spearman's_rank_correlation manders'_correlation 2d_intensity_histogram psf=3 costes_randomisations=3");
 
-			// save images and results
+			// save results
 			selectWindow("Log");
 			saveAs("Text", dir2 + imagename+ "-coloc_Red_AF647_results.txt");
 			run("Close");
+			// Colocalisation analysis between green and far red channels
 			run("Coloc 2", "channel_1=deconvGreen channel_2=deconvAF647 roi_or_mask=DAPI-mask threshold_regression=Bisection display_shuffled_images li_histogram_channel_1 li_histogram_channel_2 spearman's_rank_correlation manders'_correlation 2d_intensity_histogram psf=3 costes_randomisations=3");
 			selectWindow("Log");
 			saveAs("Text", dir2 + imagename+ "-coloc_Green_AF647_results.txt");
 			run("Close");
 			
-			// Colocalisation analysis between red and green red channels
+			// Colocalisation analysis between red and green channels
 			
 			run("Coloc 2", "channel_1=deconvGreen channel_2=deconvRed roi_or_mask=DAPI-mask threshold_regression=Bisection display_shuffled_images li_histogram_channel_1 li_histogram_channel_2 spearman's_rank_correlation manders'_correlation 2d_intensity_histogram psf=3 costes_randomisations=3");
 			selectWindow("Log");
