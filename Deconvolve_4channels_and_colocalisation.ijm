@@ -1,9 +1,10 @@
 // ImageJ macro to batch remove out of nucleus intensities based on DAPI mask
 // then deconvolve images using theoretical PSF
-// then measure colocalisation between red and green channel
+// then measure colocalisation between green and red, green and fed as well as red and far red channels in 3D
 // requires Coloc2 and Iterative 3D deconvolution plugins
 // requires the PFS files to be located in the root folder an
 // select 2 directory for output
+// after deconvolution, corresponding channels are merged in one multi-channel image
 
 //########################
 macro "Batch Coloc" 
@@ -36,12 +37,14 @@ macro "Batch Coloc"
 			selectWindow("C1-image");
 			rename("rawAF647");
 			selectWindow("DAPI");
+			
 			//generate DAPI mask
 			setAutoThreshold("Otsu dark stack");
 			run("Convert to Mask", "method=Otsu background=Dark calculate black");
 			run("Options...", "iterations=1 count=1 black do=[Fill Holes] stack");
 			run("Options...", "iterations=3 count=1 black do=Dilate stack");
 			run("Divide...", "value=255.000 stack");
+			
 			//remove the signal outside nucleus
 			imageCalculator("Multiply create stack", "rawRed","DAPI");
 			rename("redBGremove");
@@ -57,8 +60,6 @@ macro "Batch Coloc"
 			rename("PFSred");
 			open(dir1+"PSF_635_SPE_63x.tiff");
 			rename("PFSfarRed");
-
-			
 			run("Iterative Deconvolve 3D", "image=[redBGremove] point=PFSgreen output=Deconvolved normalize show log perform detect wiener=0.000 low=1 z_direction=1 maximum=5 terminate=0.010");
 			rename("deconvRed");
 			run("8-bit");
@@ -71,7 +72,7 @@ macro "Batch Coloc"
 
 //
 
-		// Colocalisation analysis
+			// Restore threshold of DAPI-mask, DAPI-mask will be used in deconvolution
 			selectWindow("DAPI");
 			run("Duplicate...", "title=DAPI-mask duplicate");
 			setThreshold(1, 255);
@@ -79,13 +80,12 @@ macro "Batch Coloc"
 
 			
 			// Colocalisation analysis between red and far red channels
-			
 			run("Coloc 2", "channel_1=deconvRed channel_2=deconvAF647 roi_or_mask=DAPI-mask threshold_regression=Bisection display_shuffled_images li_histogram_channel_1 li_histogram_channel_2 spearman's_rank_correlation manders'_correlation 2d_intensity_histogram psf=3 costes_randomisations=3");
-
 			// save results
 			selectWindow("Log");
 			saveAs("Text", dir2 + imagename+ "-coloc_Red_AF647_results.txt");
 			run("Close");
+
 			// Colocalisation analysis between green and far red channels
 			run("Coloc 2", "channel_1=deconvGreen channel_2=deconvAF647 roi_or_mask=DAPI-mask threshold_regression=Bisection display_shuffled_images li_histogram_channel_1 li_histogram_channel_2 spearman's_rank_correlation manders'_correlation 2d_intensity_histogram psf=3 costes_randomisations=3");
 			selectWindow("Log");
@@ -93,7 +93,6 @@ macro "Batch Coloc"
 			run("Close");
 			
 			// Colocalisation analysis between red and green channels
-			
 			run("Coloc 2", "channel_1=deconvGreen channel_2=deconvRed roi_or_mask=DAPI-mask threshold_regression=Bisection display_shuffled_images li_histogram_channel_1 li_histogram_channel_2 spearman's_rank_correlation manders'_correlation 2d_intensity_histogram psf=3 costes_randomisations=3");
 			selectWindow("Log");
 			saveAs("Text", dir2 + imagename+ "-coloc_Green_Red_results.txt");
@@ -105,7 +104,6 @@ macro "Batch Coloc"
 
 			
 			// close the rest
-			
 			close('*');
 			
 			
