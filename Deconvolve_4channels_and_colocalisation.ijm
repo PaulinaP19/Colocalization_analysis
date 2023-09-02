@@ -1,7 +1,7 @@
 // ImageJ macro to batch remove out of nucleus intensities based on DAPI mask
 // then deconvolve images using theoretical PSF
 // then measure colocalisation between green and red, green and fed as well as red and far red channels in 3D
-// requires Coloc2 and Iterative 3D deconvolution plugins
+// requires Coloc2 and Iterative Deconvolve 3D plugins
 // requires the PFS files to be located in the root folder an
 // select 2 directory for output
 // after deconvolution, corresponding channels are merged in one multi-channel image
